@@ -73,6 +73,15 @@ body.theme-grey .settings-icon {
   filter: invert(1);
 }
 
+/* Mobile responsive settings icon - blue stroke on smaller screens */
+@media (max-width: 640px) {
+  .settings-icon,
+  .settings-icon path,
+  .settings-icon circle {
+    stroke: rgb(0, 16, 217) !important;
+  }
+}
+
 /* Hide/minimize icons color */
 body.theme-dark .panel-toggle-icon,
 body.theme-grey .panel-toggle-icon,

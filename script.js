@@ -1125,6 +1125,65 @@ export default function App() {
     descending: true,
   });
 
+  // State variables for app logic - MUST be declared before any hooks that use them
+  const [prompt, setPrompt] = useState("");
+  const [appName, setAppName] = useState("");
+  const [appTitle, setAppTitle] = useState("");
+  const [generating, setGenerating] = useState(false);
+  const [selectedApp, setSelectedApp] = useState(null);
+  const [editCode, setEditCode] = useState("");
+  const [models, setModels] = useState([]);
+  const [model, setModel] = useState("gpt-4o-mini");
+  const [provider, setProvider] = useState("All");
+  const [puter, setPuter] = useState(null);
+  const [user, setUser] = useState(null);
+  const [log, setLog] = useState([]);
+  const [showCode, setShowCode] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedTemplate, setSelectedTemplate] = useState(null);
+  const [showTemplates, setShowTemplates] = useState(false);
+  const [showVersions, setShowVersions] = useState(false);
+  const [selectedApps, setSelectedApps] = useState(new Set());
+  const [bulkMode, setBulkMode] = useState(false);
+  const [sortBy, setSortBy] = useState("date");
+  const [filterFavorites, setFilterFavorites] = useState(false);
+  const [showAnalytics, setShowAnalytics] = useState(false);
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [activeProvider, setActiveProvider] = useState("Puter");
+  const [apiKeys, setApiKeys] = useState({});
+  const [favoriteModels, setFavoriteModels] = useState(new Set());
+  const [pollinationsModels, setPollinationsModels] = useState([]);
+  const [shareLink, setShareLink] = useState("");
+  const [activeTab, setActiveTab] = useState("build");
+  const [usageLoading, setUsageLoading] = useState(false);
+  const [usageRefreshComplete, setUsageRefreshComplete] = useState(false);
+  const [leftPanelCollapsed, setLeftPanelCollapsed] = useState(false);
+  const [codePanelCollapsed, setCodePanelCollapsed] = useState(false);
+  const [previewPanelCollapsed, setPreviewPanelCollapsed] = useState(false);
+  const [leftPanelWidth, setLeftPanelWidth] = useState(() => {
+    const saved = localStorage.getItem("leftPanelWidth");
+    return saved ? parseFloat(saved) : 25;
+  });
+  const [codePanelWidth, setCodePanelWidth] = useState(() => {
+    const saved = localStorage.getItem("codePanelWidth");
+    return saved ? parseFloat(saved) : 42;
+  });
+  const [isResizing, setIsResizing] = useState(null);
+  const [appLayout, setAppLayout] = useState(() => {
+    return localStorage.getItem("app-layout") || "side-by-side";
+  });
+  const [showNewFileModal, setShowNewFileModal] = useState(false);
+  const [newFileName, setNewFileName] = useState("");
+  const [files, setFiles] = useState([{ name: "index.html", content: "" }]);
+  const [activeFile, setActiveFile] = useState("index.html");
+  const [usagePulsing, setUsagePulsing] = useState(false);
+  const [showEditorDefault, setShowEditorDefault] = useState(true);
+
+  const fileInputRef = useRef(null);
+  const containerRef = useRef(null);
+
   const fetchUsage = useCallback(async () => {
     if (!puter?.auth?.getMonthlyUsage) return;
     setUsageLoading(true);
@@ -1250,21 +1309,6 @@ export default function App() {
     if (savedModel) setModel(savedModel);
   }, []);
 
-  // State variables for app logic
-  const [prompt, setPrompt] = useState("");
-  const [appName, setAppName] = useState("");
-  const [appTitle, setAppTitle] = useState("");
-  const [generating, setGenerating] = useState(false);
-  const [selectedApp, setSelectedApp] = useState(null);
-  const [editCode, setEditCode] = useState("");
-  const [models, setModels] = useState([]);
-  const [model, setModel] = useState("gpt-4o-mini");
-  const [provider, setProvider] = useState("All");
-  const [puter, setPuter] = useState(null);
-  const [user, setUser] = useState(null);
-  const [log, setLog] = useState([]);
-  const [showCode, setShowCode] = useState(false);
-
   // Sync editCode with activeFile content when activeFile changes
   useEffect(() => {
     const file = files.find((f) => f.name === activeFile);
@@ -1275,48 +1319,6 @@ export default function App() {
 
   // Derived state to replace missing displayCode
   const displayCode = showCode || editCode || selectedApp?.code;
-
-  // New feature states (filters, bulk mode, modals)
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedTemplate, setSelectedTemplate] = useState(null);
-  const [showTemplates, setShowTemplates] = useState(false);
-  const [showVersions, setShowVersions] = useState(false);
-  const [selectedApps, setSelectedApps] = useState(new Set());
-  const [bulkMode, setBulkMode] = useState(false);
-  const [sortBy, setSortBy] = useState("date");
-  const [filterFavorites, setFilterFavorites] = useState(false);
-  const [showAnalytics, setShowAnalytics] = useState(false);
-  const [showExportModal, setShowExportModal] = useState(false);
-  const [showShareModal, setShowShareModal] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
-  const [activeProvider, setActiveProvider] = useState("Puter");
-  const [apiKeys, setApiKeys] = useState({});
-  const [favoriteModels, setFavoriteModels] = useState(new Set());
-  const [pollinationsModels, setPollinationsModels] = useState([]);
-  const [shareLink, setShareLink] = useState("");
-  const [activeTab, setActiveTab] = useState("build");
-  const [usageLoading, setUsageLoading] = useState(false);
-  const [usageRefreshComplete, setUsageRefreshComplete] = useState(false);
-  const fileInputRef = useRef(null);
-
-  // Panel collapse states
-  const [leftPanelCollapsed, setLeftPanelCollapsed] = useState(false);
-  const [codePanelCollapsed, setCodePanelCollapsed] = useState(false);
-  const [previewPanelCollapsed, setPreviewPanelCollapsed] = useState(false);
-
-  // Panel width states (percentages)
-  const [leftPanelWidth, setLeftPanelWidth] = useState(() => {
-    const saved = localStorage.getItem("leftPanelWidth");
-    return saved ? parseFloat(saved) : 25;
-  });
-  const [codePanelWidth, setCodePanelWidth] = useState(() => {
-    const saved = localStorage.getItem("codePanelWidth");
-    return saved ? parseFloat(saved) : 42;
-  });
-
-  // Resizing state
-  const [isResizing, setIsResizing] = useState(null);
-  const containerRef = useRef(null);
 
   // Handle panel resizing
   const handleMouseMove = useCallback((e) => {
@@ -1354,19 +1356,6 @@ export default function App() {
     };
   }, [isResizing, handleMouseMove, handleMouseUp]);
 
-
-  // App layout state (side-by-side, stacked, custom)
-  const [appLayout, setAppLayout] = useState(() => {
-    return localStorage.getItem("app-layout") || "side-by-side";
-  });
-
-  // File creation modal state
-  const [showNewFileModal, setShowNewFileModal] = useState(false);
-  const [newFileName, setNewFileName] = useState("");
-
-  // File tabs state for multi-file support
-  const [files, setFiles] = useState([{ name: "index.html", content: "" }]);
-  const [activeFile, setActiveFile] = useState("index.html");
 
   // Get current file content for the editor
   const currentFileContent = useMemo(() => {
@@ -1411,12 +1400,6 @@ export default function App() {
     },
     [files, activeFile],
   );
-
-  // Usage bar pulse state
-  const [usagePulsing, setUsagePulsing] = useState(false);
-
-  // Show editor by default (for pasting code)
-  const [showEditorDefault, setShowEditorDefault] = useState(true);
 
   // Predefined app templates the user can select from
   const templates = useMemo(
@@ -1558,6 +1541,79 @@ export default function App() {
       `${new Date().toLocaleTimeString()}: ${msg}`,
     ]);
   }, []);
+
+  // Increment view count when app is launched
+  const incrementViews = useCallback(
+    async (app) => {
+      await database.put({ ...app, views: (app.views || 0) + 1 });
+    },
+    [database],
+  );
+
+  // Toggle app's favorite flag
+  const toggleFavorite = useCallback(
+    async (app, e) => {
+      e?.stopPropagation();
+      await database.put({ ...app, favorite: !app.favorite });
+      if (selectedApp?._id === app._id) {
+        setSelectedApp({ ...app, favorite: !app.favorite });
+      }
+    },
+    [database, selectedApp],
+  );
+
+  // Delete a single app
+  const deleteApp = useCallback(
+    async (app, e) => {
+      e?.stopPropagation();
+      try {
+        addLog(`Deleting ${app.appName || app.subdomain}...`);
+        if (app.appName) {
+          try {
+            await puter.apps.delete(app.appName);
+          } catch (e) {}
+        }
+        if (app.subdomain) {
+          try {
+            await puter.hosting.delete(app.subdomain);
+          } catch (e) {}
+        }
+        // Delete all version records for this app
+        const appVersions = versions.filter((v) => v.appId === app._id);
+        for (const v of appVersions) {
+          await database.del(v._id);
+        }
+        await database.del(app._id);
+        if (selectedApp?._id === app._id) {
+          setSelectedApp(null);
+          setEditCode("");
+        }
+        addLog("✅ Deleted");
+      } catch (e) {
+        addLog(`❌ Error: ${e.message}`);
+      }
+    },
+    [puter, versions, database, selectedApp, addLog],
+  );
+
+  // Launch app either via Puter app or fallback to hosted url
+  const launchApp = useCallback(
+    async (app, e) => {
+      e?.stopPropagation();
+      await incrementViews(app);
+      if (app.appName && puter) {
+        try {
+          await puter.apps.launch(app.appName);
+          addLog(`Launched: ${app.appName}`);
+        } catch (err) {
+          window.open(app.hostedUrl, "_blank");
+        }
+      } else {
+        window.open(app.hostedUrl, "_blank");
+      }
+    },
+    [puter, incrementViews, addLog],
+  );
 
   // App details for selected app
   const selectedAppDetails = useMemo(() => {
@@ -2046,40 +2102,6 @@ RULES:
     setGenerating(false);
   }, [selectedApp, editCode, puter, database, addLog]);
 
-  // Delete an app and cleanup its hosting and versions
-  const deleteApp = useCallback(
-    async (app, e) => {
-      e?.stopPropagation();
-      try {
-        addLog(`Deleting ${app.appName || app.subdomain}...`);
-        if (app.appName) {
-          try {
-            await puter.apps.delete(app.appName);
-          } catch (e) {}
-        }
-        if (app.subdomain) {
-          try {
-            await puter.hosting.delete(app.subdomain);
-          } catch (e) {}
-        }
-        // Delete all version records for this app
-        const appVersions = versions.filter((v) => v.appId === app._id);
-        for (const v of appVersions) {
-          await database.del(v._id);
-        }
-        await database.del(app._id);
-        if (selectedApp?._id === app._id) {
-          setSelectedApp(null);
-          setEditCode("");
-        }
-        addLog("✅ Deleted");
-      } catch (e) {
-        addLog(`❌ Error: ${e.message}`);
-      }
-    },
-    [puter, versions, database, selectedApp, addLog],
-  );
-
   // Bulk delete selected apps
   const bulkDelete = useCallback(async () => {
     if (selectedApps.size === 0) return;
@@ -2090,45 +2112,6 @@ RULES:
     setSelectedApps(new Set());
     setBulkMode(false);
   }, [selectedApps, apps, deleteApp]);
-
-  // Toggle app's favorite flag
-  const toggleFavorite = useCallback(
-    async (app, e) => {
-      e?.stopPropagation();
-      await database.put({ ...app, favorite: !app.favorite });
-      if (selectedApp?._id === app._id) {
-        setSelectedApp({ ...app, favorite: !app.favorite });
-      }
-    },
-    [database, selectedApp],
-  );
-
-  // Increment view count when app is launched
-  const incrementViews = useCallback(
-    async (app) => {
-      await database.put({ ...app, views: (app.views || 0) + 1 });
-    },
-    [database],
-  );
-
-  // Launch app either via Puter app or fallback to hosted url
-  const launchApp = useCallback(
-    async (app, e) => {
-      e?.stopPropagation();
-      await incrementViews(app);
-      if (app.appName && puter) {
-        try {
-          await puter.apps.launch(app.appName);
-          addLog(`Launched: ${app.appName}`);
-        } catch (err) {
-          window.open(app.hostedUrl, "_blank");
-        }
-      } else {
-        window.open(app.hostedUrl, "_blank");
-      }
-    },
-    [puter, incrementViews, addLog],
-  );
 
   // Restore version from version history to editor
   const restoreVersion = useCallback(
