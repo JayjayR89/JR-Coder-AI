@@ -1309,21 +1309,6 @@ export default function App() {
     if (savedModel) setModel(savedModel);
   }, []);
 
-  // State variables for app logic
-  const [prompt, setPrompt] = useState("");
-  const [appName, setAppName] = useState("");
-  const [appTitle, setAppTitle] = useState("");
-  const [generating, setGenerating] = useState(false);
-  const [selectedApp, setSelectedApp] = useState(null);
-  const [editCode, setEditCode] = useState("");
-  const [models, setModels] = useState([]);
-  const [model, setModel] = useState("gpt-4o-mini");
-  const [provider, setProvider] = useState("All");
-  const [puter, setPuter] = useState(null);
-  const [user, setUser] = useState(null);
-  const [log, setLog] = useState([]);
-  const [showCode, setShowCode] = useState(false);
-
   // Sync editCode with activeFile content when activeFile changes
   useEffect(() => {
     const file = files.find((f) => f.name === activeFile);
@@ -1334,48 +1319,6 @@ export default function App() {
 
   // Derived state to replace missing displayCode
   const displayCode = showCode || editCode || selectedApp?.code;
-
-  // New feature states (filters, bulk mode, modals)
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedTemplate, setSelectedTemplate] = useState(null);
-  const [showTemplates, setShowTemplates] = useState(false);
-  const [showVersions, setShowVersions] = useState(false);
-  const [selectedApps, setSelectedApps] = useState(new Set());
-  const [bulkMode, setBulkMode] = useState(false);
-  const [sortBy, setSortBy] = useState("date");
-  const [filterFavorites, setFilterFavorites] = useState(false);
-  const [showAnalytics, setShowAnalytics] = useState(false);
-  const [showExportModal, setShowExportModal] = useState(false);
-  const [showShareModal, setShowShareModal] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
-  const [activeProvider, setActiveProvider] = useState("Puter");
-  const [apiKeys, setApiKeys] = useState({});
-  const [favoriteModels, setFavoriteModels] = useState(new Set());
-  const [pollinationsModels, setPollinationsModels] = useState([]);
-  const [shareLink, setShareLink] = useState("");
-  const [activeTab, setActiveTab] = useState("build");
-  const [usageLoading, setUsageLoading] = useState(false);
-  const [usageRefreshComplete, setUsageRefreshComplete] = useState(false);
-  const fileInputRef = useRef(null);
-
-  // Panel collapse states
-  const [leftPanelCollapsed, setLeftPanelCollapsed] = useState(false);
-  const [codePanelCollapsed, setCodePanelCollapsed] = useState(false);
-  const [previewPanelCollapsed, setPreviewPanelCollapsed] = useState(false);
-
-  // Panel width states (percentages)
-  const [leftPanelWidth, setLeftPanelWidth] = useState(() => {
-    const saved = localStorage.getItem("leftPanelWidth");
-    return saved ? parseFloat(saved) : 25;
-  });
-  const [codePanelWidth, setCodePanelWidth] = useState(() => {
-    const saved = localStorage.getItem("codePanelWidth");
-    return saved ? parseFloat(saved) : 42;
-  });
-
-  // Resizing state
-  const [isResizing, setIsResizing] = useState(null);
-  const containerRef = useRef(null);
 
   // Handle panel resizing
   const handleMouseMove = useCallback((e) => {
