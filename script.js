@@ -1542,6 +1542,79 @@ export default function App() {
     ]);
   }, []);
 
+  // Increment view count when app is launched
+  const incrementViews = useCallback(
+    async (app) => {
+      await database.put({ ...app, views: (app.views || 0) + 1 });
+    },
+    [database],
+  );
+
+  // Toggle app's favorite flag
+  const toggleFavorite = useCallback(
+    async (app, e) => {
+      e?.stopPropagation();
+      await database.put({ ...app, favorite: !app.favorite });
+      if (selectedApp?._id === app._id) {
+        setSelectedApp({ ...app, favorite: !app.favorite });
+      }
+    },
+    [database, selectedApp],
+  );
+
+  // Delete a single app
+  const deleteApp = useCallback(
+    async (app, e) => {
+      e?.stopPropagation();
+      try {
+        addLog(`Deleting ${app.appName || app.subdomain}...`);
+        if (app.appName) {
+          try {
+            await puter.apps.delete(app.appName);
+          } catch (e) {}
+        }
+        if (app.subdomain) {
+          try {
+            await puter.hosting.delete(app.subdomain);
+          } catch (e) {}
+        }
+        // Delete all version records for this app
+        const appVersions = versions.filter((v) => v.appId === app._id);
+        for (const v of appVersions) {
+          await database.del(v._id);
+        }
+        await database.del(app._id);
+        if (selectedApp?._id === app._id) {
+          setSelectedApp(null);
+          setEditCode("");
+        }
+        addLog("✅ Deleted");
+      } catch (e) {
+        addLog(`❌ Error: ${e.message}`);
+      }
+    },
+    [puter, versions, database, selectedApp, addLog],
+  );
+
+  // Launch app either via Puter app or fallback to hosted url
+  const launchApp = useCallback(
+    async (app, e) => {
+      e?.stopPropagation();
+      await incrementViews(app);
+      if (app.appName && puter) {
+        try {
+          await puter.apps.launch(app.appName);
+          addLog(`Launched: ${app.appName}`);
+        } catch (err) {
+          window.open(app.hostedUrl, "_blank");
+        }
+      } else {
+        window.open(app.hostedUrl, "_blank");
+      }
+    },
+    [puter, incrementViews, addLog],
+  );
+
   // App details for selected app
   const selectedAppDetails = useMemo(() => {
     if (!selectedApp) return null;
