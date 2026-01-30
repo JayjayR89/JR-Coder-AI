@@ -1401,12 +1401,6 @@ export default function App() {
     [files, activeFile],
   );
 
-  // Usage bar pulse state
-  const [usagePulsing, setUsagePulsing] = useState(false);
-
-  // Show editor by default (for pasting code)
-  const [showEditorDefault, setShowEditorDefault] = useState(true);
-
   // Predefined app templates the user can select from
   const templates = useMemo(
     () => [
