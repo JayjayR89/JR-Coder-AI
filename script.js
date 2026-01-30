@@ -1357,19 +1357,6 @@ export default function App() {
   }, [isResizing, handleMouseMove, handleMouseUp]);
 
 
-  // App layout state (side-by-side, stacked, custom)
-  const [appLayout, setAppLayout] = useState(() => {
-    return localStorage.getItem("app-layout") || "side-by-side";
-  });
-
-  // File creation modal state
-  const [showNewFileModal, setShowNewFileModal] = useState(false);
-  const [newFileName, setNewFileName] = useState("");
-
-  // File tabs state for multi-file support
-  const [files, setFiles] = useState([{ name: "index.html", content: "" }]);
-  const [activeFile, setActiveFile] = useState("index.html");
-
   // Get current file content for the editor
   const currentFileContent = useMemo(() => {
     const file = files.find((f) => f.name === activeFile);
