@@ -1125,6 +1125,65 @@ export default function App() {
     descending: true,
   });
 
+  // State variables for app logic - MUST be declared before any hooks that use them
+  const [prompt, setPrompt] = useState("");
+  const [appName, setAppName] = useState("");
+  const [appTitle, setAppTitle] = useState("");
+  const [generating, setGenerating] = useState(false);
+  const [selectedApp, setSelectedApp] = useState(null);
+  const [editCode, setEditCode] = useState("");
+  const [models, setModels] = useState([]);
+  const [model, setModel] = useState("gpt-4o-mini");
+  const [provider, setProvider] = useState("All");
+  const [puter, setPuter] = useState(null);
+  const [user, setUser] = useState(null);
+  const [log, setLog] = useState([]);
+  const [showCode, setShowCode] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedTemplate, setSelectedTemplate] = useState(null);
+  const [showTemplates, setShowTemplates] = useState(false);
+  const [showVersions, setShowVersions] = useState(false);
+  const [selectedApps, setSelectedApps] = useState(new Set());
+  const [bulkMode, setBulkMode] = useState(false);
+  const [sortBy, setSortBy] = useState("date");
+  const [filterFavorites, setFilterFavorites] = useState(false);
+  const [showAnalytics, setShowAnalytics] = useState(false);
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [activeProvider, setActiveProvider] = useState("Puter");
+  const [apiKeys, setApiKeys] = useState({});
+  const [favoriteModels, setFavoriteModels] = useState(new Set());
+  const [pollinationsModels, setPollinationsModels] = useState([]);
+  const [shareLink, setShareLink] = useState("");
+  const [activeTab, setActiveTab] = useState("build");
+  const [usageLoading, setUsageLoading] = useState(false);
+  const [usageRefreshComplete, setUsageRefreshComplete] = useState(false);
+  const [leftPanelCollapsed, setLeftPanelCollapsed] = useState(false);
+  const [codePanelCollapsed, setCodePanelCollapsed] = useState(false);
+  const [previewPanelCollapsed, setPreviewPanelCollapsed] = useState(false);
+  const [leftPanelWidth, setLeftPanelWidth] = useState(() => {
+    const saved = localStorage.getItem("leftPanelWidth");
+    return saved ? parseFloat(saved) : 25;
+  });
+  const [codePanelWidth, setCodePanelWidth] = useState(() => {
+    const saved = localStorage.getItem("codePanelWidth");
+    return saved ? parseFloat(saved) : 42;
+  });
+  const [isResizing, setIsResizing] = useState(null);
+  const [appLayout, setAppLayout] = useState(() => {
+    return localStorage.getItem("app-layout") || "side-by-side";
+  });
+  const [showNewFileModal, setShowNewFileModal] = useState(false);
+  const [newFileName, setNewFileName] = useState("");
+  const [files, setFiles] = useState([{ name: "index.html", content: "" }]);
+  const [activeFile, setActiveFile] = useState("index.html");
+  const [usagePulsing, setUsagePulsing] = useState(false);
+  const [showEditorDefault, setShowEditorDefault] = useState(true);
+
+  const fileInputRef = useRef(null);
+  const containerRef = useRef(null);
+
   const fetchUsage = useCallback(async () => {
     if (!puter?.auth?.getMonthlyUsage) return;
     setUsageLoading(true);
